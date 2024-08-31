@@ -66,13 +66,5 @@ func (c *Client) CreateChatCompletionStream(
 		return nil, err
 	}
 
-	g, err = c.LangfuseClient.GenerationEnd(&model.Generation{
-
-		Output: nil,
-	})
-	if err != nil {
-		return nil, err
-	}
-
 	return NewChatCompletionStreamWrapper(traceID, g.ID, stream, c.LangfuseClient), nil
 }
