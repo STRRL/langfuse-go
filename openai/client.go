@@ -1,11 +1,11 @@
 package openai
 
 import (
-	"github.com/STRRL/langfuse-go/langfuse"
+	hlangfuse "github.com/henomis/langfuse-go"
 	goopenai "github.com/sashabaranov/go-openai"
 )
 
 type Client struct {
-	OpenAIClient   goopenai.Client
-	LangfuseClient langfuse.Client
+	OpenAIClient   *goopenai.Client
+	LangfuseClient *hlangfuse.Langfuse
 }
