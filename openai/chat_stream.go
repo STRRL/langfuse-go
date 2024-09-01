@@ -44,7 +44,7 @@ func (c *Client) CreateChatCompletionStream(
 	g, err := c.LangfuseClient.Generation(&model.Generation{
 		Name:    "chat-completion-stream",
 		TraceID: traceID,
-		Input:   request.Messages,
+		Input:   request,
 		Model:   request.Model,
 		ModelParameters: model.M{
 			"stream":      true,
