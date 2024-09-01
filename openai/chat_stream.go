@@ -28,6 +28,7 @@ func (c *Client) CreateChatCompletionStream(
 			traceModel.Release = options.Release
 			traceModel.Metadata = options.Metadata
 			traceModel.Tags = options.Tags
+			traceModel.Input = request
 
 			t, err := c.LangfuseClient.Trace(&traceModel)
 			if err != nil {
