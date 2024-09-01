@@ -10,6 +10,7 @@ type AggregatedResponse struct {
 	Completion string              `json:"completion,omitempty"`
 	ToolCallID string              `json:"tool_call_id,omitempty"`
 	ToolCalls  []goopenai.ToolCall `json:"tool_calls,omitempty"`
+	Usage      goopenai.Usage      `json:"usage,omitempty"`
 }
 
 type streamResponseAggregator struct {
@@ -37,6 +38,12 @@ func (s *streamResponseAggregator) Done() (AggregatedResponse, time.Time) {
 	defer s.lock.Unlock()
 	result := AggregatedResponse{}
 	for _, item := range s.buf {
+		if item.Usage != nil {
+			result.Usage.PromptTokens += item.Usage.PromptTokens
+			result.Usage.CompletionTokens += item.Usage.CompletionTokens
+			result.Usage.TotalTokens += item.Usage.TotalTokens
+		}
+
 		if item.Choices == nil || len(item.Choices) == 0 {
 			continue
 		}

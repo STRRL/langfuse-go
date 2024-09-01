@@ -39,6 +39,11 @@ func (c *chatCompletionStreamWrapper) Recv() (goopenai.ChatCompletionStreamRespo
 				ID:                  c.observationID,
 				Output:              aggregatedResponse,
 				CompletionStartTime: &ttft,
+				Usage: model.Usage{
+					PromptTokens:     aggregatedResponse.Usage.PromptTokens,
+					CompletionTokens: aggregatedResponse.Usage.CompletionTokens,
+					TotalTokens:      aggregatedResponse.Usage.TotalTokens,
+				},
 			})
 			if err != nil {
 				// TODO: logging
