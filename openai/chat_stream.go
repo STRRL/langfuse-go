@@ -2,6 +2,7 @@ package openai
 
 import (
 	"context"
+	"time"
 
 	"github.com/henomis/langfuse-go/model"
 	goopenai "github.com/sashabaranov/go-openai"
@@ -38,6 +39,8 @@ func (c *Client) CreateChatCompletionStream(
 		}
 	}
 
+	requestStartTime := time.Now()
+
 	g, err := c.LangfuseClient.Generation(&model.Generation{
 		Name:    "chat-completion-stream",
 		TraceID: traceID,
@@ -51,12 +54,11 @@ func (c *Client) CreateChatCompletionStream(
 			"stop":        request.Stop,
 			"n":           request.N,
 		},
-		Usage: model.Usage{},
+		StartTime: &requestStartTime,
 	}, nil)
 	if err != nil {
 		return nil, err
 	}
-
 	stream, err := c.OpenAIClient.CreateChatCompletionStream(
 		ctx,
 		request,
