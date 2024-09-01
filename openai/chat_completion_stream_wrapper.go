@@ -34,7 +34,7 @@ func (c *chatCompletionStreamWrapper) Recv() (goopenai.ChatCompletionStreamRespo
 	if err != nil {
 		if io.EOF == err {
 			aggregatedResponse := c.aggregator.Done()
-			_, err = c.langfuseClient.GenerationEnd(&model.Generation{
+			_, err := c.langfuseClient.GenerationEnd(&model.Generation{
 				TraceID: c.traceID,
 				ID:      c.observationID,
 				Output:  aggregatedResponse,
