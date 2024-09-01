@@ -33,11 +33,12 @@ func (c *chatCompletionStreamWrapper) Recv() (goopenai.ChatCompletionStreamRespo
 	result, err := c.upstream.Recv()
 	if err != nil {
 		if io.EOF == err {
-			aggregatedResponse := c.aggregator.Done()
+			aggregatedResponse, ttft := c.aggregator.Done()
 			_, err := c.langfuseClient.GenerationEnd(&model.Generation{
-				TraceID: c.traceID,
-				ID:      c.observationID,
-				Output:  aggregatedResponse,
+				TraceID:             c.traceID,
+				ID:                  c.observationID,
+				Output:              aggregatedResponse,
+				CompletionStartTime: &ttft,
 			})
 			if err != nil {
 				// TODO: logging

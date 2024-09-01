@@ -1,6 +1,10 @@
 package openai
 
-import goopenai "github.com/sashabaranov/go-openai"
+import (
+	goopenai "github.com/sashabaranov/go-openai"
+	"sync"
+	"time"
+)
 
 type AggregatedResponse struct {
 	Completion string              `json:"completion,omitempty"`
@@ -9,7 +13,9 @@ type AggregatedResponse struct {
 }
 
 type streamResponseAggregator struct {
-	buf []goopenai.ChatCompletionStreamResponse
+	lock                sync.Mutex
+	timeToFirstResponse *time.Time
+	buf                 []goopenai.ChatCompletionStreamResponse
 }
 
 func newStreamResponseAggregator() *streamResponseAggregator {
@@ -17,10 +23,18 @@ func newStreamResponseAggregator() *streamResponseAggregator {
 }
 
 func (s *streamResponseAggregator) Append(item goopenai.ChatCompletionStreamResponse) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	if s.timeToFirstResponse == nil {
+		now := time.Now()
+		s.timeToFirstResponse = &now
+	}
 	s.buf = append(s.buf, item)
 }
 
-func (s *streamResponseAggregator) Done() AggregatedResponse {
+func (s *streamResponseAggregator) Done() (AggregatedResponse, time.Time) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
 	result := AggregatedResponse{}
 	for _, item := range s.buf {
 		if item.Choices == nil || len(item.Choices) == 0 {
@@ -63,5 +77,5 @@ func (s *streamResponseAggregator) Done() AggregatedResponse {
 		}
 	}
 
-	return result
+	return result, *s.timeToFirstResponse
 }
