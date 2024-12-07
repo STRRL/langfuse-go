@@ -4,6 +4,7 @@ go 1.23.0
 
 require (
 	github.com/getkin/kin-openapi v0.124.0
+	github.com/henomis/langfuse-go v0.0.3
 	github.com/oapi-codegen/oapi-codegen/v2 v2.3.0
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/sashabaranov/go-openai v1.29.0
@@ -14,7 +15,6 @@ require (
 	github.com/go-openapi/jsonpointer v0.20.2 // indirect
 	github.com/go-openapi/swag v0.22.8 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/henomis/langfuse-go v0.0.3 // indirect
 	github.com/henomis/restclientgo v1.2.0 // indirect
 	github.com/invopop/yaml v0.2.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
