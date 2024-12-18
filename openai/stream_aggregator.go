@@ -17,10 +17,14 @@ type streamResponseAggregator struct {
 	lock                sync.Mutex
 	timeToFirstResponse *time.Time
 	buf                 []goopenai.ChatCompletionStreamResponse
+
+	request *goopenai.ChatCompletionRequest
 }
 
-func newStreamResponseAggregator() *streamResponseAggregator {
-	return &streamResponseAggregator{}
+func newStreamResponseAggregator(request *goopenai.ChatCompletionRequest) *streamResponseAggregator {
+	return &streamResponseAggregator{
+		request: request,
+	}
 }
 
 func (s *streamResponseAggregator) Append(item goopenai.ChatCompletionStreamResponse) {
@@ -42,6 +46,18 @@ func (s *streamResponseAggregator) Done() (AggregatedResponse, time.Time) {
 			result.Usage.PromptTokens += item.Usage.PromptTokens
 			result.Usage.CompletionTokens += item.Usage.CompletionTokens
 			result.Usage.TotalTokens += item.Usage.TotalTokens
+		}
+
+		if result.Usage.PromptTokens == 0 {
+			promptTokenUsage := s.collectPromptTokenUsageManually()
+			result.Usage.PromptTokens = promptTokenUsage
+			result.Usage.TotalTokens += promptTokenUsage
+		}
+
+		if result.Usage.CompletionTokens == 0 {
+			completionTokenUsage := s.collectCompletionTokenUsageManually()
+			result.Usage.CompletionTokens = completionTokenUsage
+			result.Usage.TotalTokens += completionTokenUsage
 		}
 
 		if item.Choices == nil || len(item.Choices) == 0 {
@@ -85,4 +101,31 @@ func (s *streamResponseAggregator) Done() (AggregatedResponse, time.Time) {
 	}
 
 	return result, *s.timeToFirstResponse
+}
+
+func (s *streamResponseAggregator) collectPromptTokenUsageManually() int {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	result := 0
+	result += GetOpenAITokenCount(s.request.Messages)
+
+	return result
+}
+
+func (s *streamResponseAggregator) collectCompletionTokenUsageManually() int {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	result := 0
+	for _, item := range s.buf {
+		if item.Choices == nil || len(item.Choices) == 0 {
+			continue
+		}
+		if item.Choices[0].Delta.Content != "" {
+			result += 1
+		}
+	}
+
+	return result
 }
