@@ -19,12 +19,12 @@ type chatCompletionStreamWrapper struct {
 	langfuseClient *hlangfuse.Langfuse
 }
 
-func NewChatCompletionStreamWrapper(traceID string, observationID string, upstream *goopenai.ChatCompletionStream, langfuseClient *hlangfuse.Langfuse) ChatCompletionStream {
+func NewChatCompletionStreamWrapper(traceID string, observationID string, request *goopenai.ChatCompletionRequest, upstream *goopenai.ChatCompletionStream, langfuseClient *hlangfuse.Langfuse) ChatCompletionStream {
 	return &chatCompletionStreamWrapper{
 		traceID:        traceID,
 		observationID:  observationID,
 		upstream:       upstream,
-		aggregator:     newStreamResponseAggregator(),
+		aggregator:     newStreamResponseAggregator(request),
 		langfuseClient: langfuseClient,
 	}
 }

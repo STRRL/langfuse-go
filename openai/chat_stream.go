@@ -69,5 +69,5 @@ func (c *Client) CreateChatCompletionStream(
 		return nil, err
 	}
 
-	return NewChatCompletionStreamWrapper(traceID, g.ID, stream, c.LangfuseClient), nil
+	return NewChatCompletionStreamWrapper(traceID, g.ID, &request, stream, c.LangfuseClient), nil
 }
