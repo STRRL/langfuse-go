@@ -34,11 +34,12 @@ func (c *chatCompletionStreamWrapper) Recv() (goopenai.ChatCompletionStreamRespo
 	if err != nil {
 		if io.EOF == err {
 			aggregatedResponse, ttft := c.aggregator.Done()
+			// sometime ttft is nil when we do not get valid response
 			_, err := c.langfuseClient.GenerationEnd(&model.Generation{
 				TraceID:             c.traceID,
 				ID:                  c.observationID,
 				Output:              aggregatedResponse,
-				CompletionStartTime: &ttft,
+				CompletionStartTime: ttft,
 				Usage: model.Usage{
 					PromptTokens:     aggregatedResponse.Usage.PromptTokens,
 					CompletionTokens: aggregatedResponse.Usage.CompletionTokens,

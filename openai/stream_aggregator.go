@@ -37,7 +37,7 @@ func (s *streamResponseAggregator) Append(item goopenai.ChatCompletionStreamResp
 	s.buf = append(s.buf, item)
 }
 
-func (s *streamResponseAggregator) Done() (AggregatedResponse, time.Time) {
+func (s *streamResponseAggregator) Done() (AggregatedResponse, *time.Time) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	result := AggregatedResponse{}
@@ -100,7 +100,7 @@ func (s *streamResponseAggregator) Done() (AggregatedResponse, time.Time) {
 		}
 	}
 
-	return result, *s.timeToFirstResponse
+	return result, s.timeToFirstResponse
 }
 
 func (s *streamResponseAggregator) collectPromptTokenUsageManually() int {
